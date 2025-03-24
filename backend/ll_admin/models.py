@@ -17,12 +17,3 @@ class Subject(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.school.name}"
-
-class TeacherSubject(models.Model):
-    id = models.AutoField(primary_key=True)
-    teacher = models.ForeignKey(CustomUser, on_delete=models.CASCADE, limit_choices_to={'groups__name': 'Teacher'})
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
-    assigned_class = models.ForeignKey(Class, on_delete=models.CASCADE, related_name="teacher_subjects")
-
-    def __str__(self):
-        return f"{self.teacher.username} teaches {self.subject.name} in {self.assigned_class.name}"

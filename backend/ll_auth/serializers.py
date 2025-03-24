@@ -40,3 +40,14 @@ class RegisterSchoolSerializer(serializers.ModelSerializer):
         user.groups.add(admin_group)
 
         return school
+
+class TeacherSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'phone', 'school']
+
+    def create(self, validated_data):
+        teacher = CustomUser.objects.create(**validated_data)
+        teacher_group, _ = Group.objects.get_or_create(name="Teacher")
+        teacher.groups.add(teacher_group)
+        return teacher
