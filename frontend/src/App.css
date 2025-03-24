@@ -1,0 +1,120 @@
+@import "tailwindcss";
+
+#root,
+body,
+html {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: "Rubik", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+}
+
+:root {
+    --page-color: #FFFFFF;
+    --color-primary: #4B3217;
+    --color-secondary: #AE9276;
+    --color-accent: #005057;
+    --color-compliment: #00777E;
+
+    --page-color-dark: #FFFFFF;
+    --color-primary-dark: #4B3217;
+    --color-secondary-dark: #AE9276;
+    --color-accent-dark: #005057;
+    --color-compliment-dark: #00777E;
+}
+
+.App {
+    min-height: 100vh;
+    /* Ensure background fills the screen */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--page-color);
+    color: var(--color-primary);
+}
+
+.dark .App {
+    background-color: var(--page-color-dark);
+    color: var(--color-primary-dark);
+}
+
+/* Text Section */
+.fancy-font {
+    font-family: "Pattaya", serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.handwrite-font {
+    font-family: "Indie Flower", cursive;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.text-primary {
+    color: var(--color-primary) !important;
+}
+
+.dark .text-primary {
+    color: var(--color-primary-dark) !important;
+}
+
+.text-secondary {
+    color: var(--color-secondary) !important;
+}
+
+.dark .text-secondary {
+    color: var(--color-secondary-dark) !important;
+}
+
+.text-accent {
+    color: var(--color-accent) !important;
+}
+
+.dark .text-accent {
+    color: var(--color-accent-dark) !important;
+}
+
+.text-compliment {
+    color: var(--color-compliment) !important;
+}
+
+.dark .text-compliment {
+    color: var(--color-compliment-dark) !important;
+}
+
+/* Components Section */
+.btn-primary {
+    background-color: var(--color-primary) !important;
+    border: 2px solid var(--color-primary) !important;
+    color: var(--page-color) !important;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: background 0.3s ease;
+}
+.btn-primary:hover {
+    background-color: var(--color-secondary) !important;
+}
+.btn-primary-outlined {
+    background-color: var(--page-primary);
+    border: 1px solid var(--color-primary) !important;
+    color: var(--primary-color) !important;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: background 0.3s ease;
+}
+.btn-primary-outlined:hover {
+    background-color: var(--color-secondary);
+    color: var(--primary-color) !important;
+}
+
+.input-primary {
+    border: 1px solid var(--color-primary) !important;
+}
