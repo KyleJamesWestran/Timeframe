@@ -155,7 +155,8 @@ CORS_ALLOW_ALL_HEADERS = True
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "rest_framework.authentication.SessionAuthentication",  # Allows Django Admin users
+        "rest_framework_simplejwt.authentication.JWTAuthentication",  # Allows frontend JWT auth
     ),
 }
 

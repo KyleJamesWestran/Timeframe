@@ -52,7 +52,11 @@ const Layout = ({ children }) => {
                         <FaSearch size={20} className="text-primary hover:text-secondary cursor-pointer mx-5" />
                         <FaUser size={20} className="text-primary hover:text-secondary cursor-pointer" />
                         {/* {userInfo && <span className="text-gray-800">{userInfo.username}</span>} */}
-                        {/* <button onClick={handleLogout} className="text-red-500 text-sm ml-2">Logout</button> */}
+                        <FaSignOutAlt 
+                            size={20} 
+                            className="text-primary hover:text-secondary cursor-pointer" 
+                            onClick={handleLogout} 
+                        />
                     </div>
                 </nav>
 

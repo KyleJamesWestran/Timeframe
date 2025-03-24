@@ -1,36 +1,39 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ModuleRegistry } from "ag-grid-community";
-import { ClientSideRowModelModule } from "ag-grid-community"; // ✅ Import this module
+import { ClientSideRowModelModule } from "ag-grid-community";
+import { readTeachers } from "../../../../controllers/admin_controller"
 
-// Register the required module
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 const TeachersTab = () => {
-    const [rowData, setRowData] = useState([
-        { make: "Tesla", model: "Model Y", price: 64950, electric: true },
-        { make: "Ford", model: "F-Series", price: 33850, electric: false },
-        { make: "Toyota", model: "Corolla", price: 29600, electric: false },
-        { make: "Mercedes", model: "EQA", price: 48890, electric: true },
-        { make: "Fiat", model: "500", price: 15774, electric: false },
-        { make: "Nissan", model: "Juke", price: 20675, electric: false }
-    ]);
+    const [rowData, setRowData] = useState([]);
 
-    const [colDefs, setColDefs] = useState([
-        { field: "make" },
-        { field: "model" },
-        { field: "price" },
-        { field: "electric" }
-    ]);
+    useEffect(() => {
+        const fetchTeachers = async () => {
+            try {
+                const data = await readTeachers();
+                setRowData(data);
+            } catch (err) {
+                console.error("Error fetching teachers:", err);
+            }
+        };
+        fetchTeachers();
+    }, []);
 
-    const defaultColDef = { flex: 1 };
+    const colDefs = [
+        { field: "id", headerName: "ID", width: 100 },
+        { field: "first_name", headerName: "Name", width: 200 },
+        { field: "last_name", headerName: "Surname", width: 200 },
+        { field: "email", headerName: "Email", width: 250 }
+    ];
 
     return (
         <div style={{ width: "100%", height: "100%" }}>
             <AgGridReact
                 rowData={rowData}
                 columnDefs={colDefs}
-                defaultColDef={defaultColDef}
+                defaultColDef={{ flex: 1 }}
                 domLayout="autoHeight"
             />
         </div>

@@ -1,5 +1,5 @@
-from django.shortcuts import render, get_object_or_404
-from rest_framework import generics, viewsets
+from django.shortcuts import render, get_object_or_404, redirect
+from rest_framework import generics, permissions, viewsets
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
@@ -8,12 +8,10 @@ from .serializers import RegisterSchoolSerializer, UserSerializer, TeacherSerial
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import Group
 
-auth_type = [AllowAny] #[IsAuthenticated], [AllowAny]
-
 class RegisterSchoolView(generics.CreateAPIView):
     queryset = School.objects.all()
     serializer_class = RegisterSchoolSerializer
-    permission_classes = auth_type
+    permission_classes = [permissions.IsAuthenticated] 
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -35,7 +33,7 @@ class RegisterSchoolView(generics.CreateAPIView):
 class GetUserInfoView(generics.RetrieveAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
-    permission_classes = auth_type
+    permission_classes = [permissions.IsAuthenticated] 
 
     def get(self, request, *args, **kwargs):
         user = request.user  # Get user from the access token
@@ -45,8 +43,11 @@ class GetUserInfoView(generics.RetrieveAPIView):
     
 class TeacherViewSet(viewsets.ModelViewSet):
     serializer_class = TeacherSerializer
-    permission_classes = auth_type
+    permission_classes = [IsAuthenticated]  # Ensure only authenticated users access this
 
     def get_queryset(self):
+        user = self.request.user
+        print(f"Logged-in user: {user}")  # Should now print the actual user, not AnonymousUser
+
         teacher_group = Group.objects.get(name="Teacher")
-        return CustomUser.objects.filter(groups=teacher_group)  # Filter only Teachers
+        return CustomUser.objects.filter(groups=teacher_group, school_id=user.school_id)

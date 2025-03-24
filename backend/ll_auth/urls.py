@@ -9,5 +9,5 @@ router.register(r'teachers', TeacherViewSet, basename='teacher')
 urlpatterns = [
     path('register_school/', RegisterSchoolView.as_view(), name='register_school'),
     path('get_user_info/', GetUserInfoView.as_view(), name='get_user_info'),
-    path('', include(router.urls)),  # ✅ Include the router URLs
+    path('', include(router.urls)),
 ]

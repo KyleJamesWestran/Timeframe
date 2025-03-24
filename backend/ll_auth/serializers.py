@@ -10,7 +10,7 @@ class SchoolSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ('id', 'username', 'email', 'phone', 'picture', 'school', 'password')
+        fields = ('id', 'username', 'email', 'phone', 'picture', 'school', 'password', )
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -44,7 +44,7 @@ class RegisterSchoolSerializer(serializers.ModelSerializer):
 class TeacherSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'phone', 'school']
+        fields = ['id', 'username', 'email', 'title', 'first_name', 'last_name', 'phone']
 
     def create(self, validated_data):
         teacher = CustomUser.objects.create(**validated_data)
