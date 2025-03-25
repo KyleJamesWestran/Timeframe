@@ -2,28 +2,27 @@ import React, { useState, useEffect } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ModuleRegistry } from "ag-grid-community";
 import { ClientSideRowModelModule } from "ag-grid-community";
-import { readClasses } from "../../../../controllers/admin_controller"
+import { readSubjects } from "../../../../controllers/admin_controller"
 
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
-const ClassesTab = () => {
+const SubjectsTab = () => {
     const [rowData, setRowData] = useState([]);
 
     useEffect(() => {
-        const fetchClasses = async () => {
+        const fetchSubjects = async () => {
             try {
-                const data = await readClasses();
+                const data = await readSubjects();
                 setRowData(data);
             } catch (err) {
                 console.error("Error fetching subjects:", err);
             }
         };
-        fetchClasses();
+        fetchSubjects();
     }, []);
 
     const colDefs = [
         { field: "id", headerName: "ID", width: 100 },
-        { field: "teacher", headerName: "Teacher", width: 200 },
         { field: "name", headerName: "Name", width: 200 },
     ];
 
@@ -39,4 +38,4 @@ const ClassesTab = () => {
     );
 };
 
-export default ClassesTab;
+export default SubjectsTab;

@@ -25,7 +25,7 @@ export const logout = () => {
 
 export const registerSchool = async (userData) => {
     try {
-        const response = await axios.post(`${API_URL}auth/register_school/`, userData);
+        const response = await axios.post(`${API_URL}ll_auth/register_school/`, userData);
 
         // Store tokens if registration is successful
         localStorage.setItem('access_token', response.data.access);
@@ -41,7 +41,7 @@ export const registerSchool = async (userData) => {
 export const getUserInfo = async () => {
     try {
         const accessToken = localStorage.getItem("access_token");
-        const response = await axios.get(`${API_URL}auth/get_user_info/`, {
+        const response = await axios.get(`${API_URL}ll_auth/get_user_info/`, {
             headers: { Authorization: `Bearer ${accessToken}` }
         });
         return response.data;
@@ -54,14 +54,36 @@ export const getUserInfo = async () => {
 export const getAccessToken = () => localStorage.getItem('access_token');
 export const getRefreshToken = () => localStorage.getItem('refresh_token');
 
-export const isAuthenticated = () => {
-    const token = getAccessToken();
-    if (!token) return false;
-    
+export const isAuthenticated = async () => {
+    let token = getAccessToken();
+    if (!token) {
+        logout();
+        window.location.href = "/login"; // Redirect to login
+        return false;
+    }
+
     try {
-        const decoded = jwtDecode(token);
-        return decoded.exp * 1000 > Date.now(); // Check if token is expired
-    } catch {
+        let decoded = jwtDecode(token);
+        console.log(new Date(decoded.exp * 1000))
+
+        if (decoded.exp * 1000 > Date.now()) {
+            return true; // Token is still valid
+        }
+
+        // If access token is expired, try refreshing
+        token = await refreshToken();
+        if (!token) {
+            logout();
+            window.location.href = "/login"; // Redirect if refresh fails
+            return false;
+        }
+
+        decoded = jwtDecode(token);
+        return decoded.exp * 1000 > Date.now();
+    } catch (error) {
+        console.error("Authentication check failed:", error);
+        logout();
+        window.location.href = "/login"; // Redirect to login
         return false;
     }
 };
@@ -71,12 +93,18 @@ export const refreshToken = async () => {
         const refresh = getRefreshToken();
         if (!refresh) throw new Error("No refresh token available");
 
-        const response = await axios.post(`${API_URL}/token/refresh/`, { refresh });
-        localStorage.setItem('access_token', response.data.access);
-        return response.data.access;
+        const response = await axios.post(`${API_URL}token/refresh/`, { refresh });
+
+        if (response.data.access) {
+            localStorage.setItem('access_token', response.data.access);
+            return response.data.access;
+        } else {
+            throw new Error("Failed to get new access token");
+        }
     } catch (error) {
-        console.error("Failed to refresh token", error);
-        logout();
-        throw error;
+        console.error("Failed to refresh token:", error.response?.data || error.message);
+        logout(); // Clear tokens if refresh fails
+        return null;
     }
 };
+

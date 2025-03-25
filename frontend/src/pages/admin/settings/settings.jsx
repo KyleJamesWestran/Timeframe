@@ -1,12 +1,12 @@
 import React, {useState} from "react";
 import {Tabs, TabsHeader, TabsBody, Tab, TabPanel} from "@material-tailwind/react";
-import {FaChalkboardTeacher, FaBook, FaUserGraduate, FaSchool } from "react-icons/fa";
+import {FaChalkboardTeacher, FaUserGraduate, FaBook, FaSchool, FaBookOpen, FaAddressBook } from "react-icons/fa";
 import {useUser} from "../../../components/layout"; // Import useUser from Layout
 
 // Import the separate pages
 import TeachersTab from "./partials/teachersTab";
 import ClassesTab from "./partials/classesTab";
-import StudentsTab from "./partials/studentsTab";
+import SubjectsTab from "./partials/subjectsTab";
 import SchoolTab from "./partials/schoolTab";
 
 const SettingsPage = () => {
@@ -23,25 +23,25 @@ const SettingsPage = () => {
         }, {
             label: "Classes",
             value: "classes",
-            icon: FaBook,
+            icon: FaBookOpen,
             component: <ClassesTab/>
         }, {
-            label: "Students",
-            value: "students",
-            icon: FaUserGraduate,
-            component: <StudentsTab/>
+            label: "Subjects",
+            value: "Subjects",
+            icon: FaAddressBook,
+            component: <SubjectsTab/>
         }, {
             label: "School",
             value: "school",
             icon: FaSchool,
-            component: <StudentsTab/>
+            component: <SchoolTab/>
         }
     ];
 
     return (
-        <div>
-            <Tabs value={activeTab}>
-                <TabsHeader className="bg-gray-100">
+        <div className="w-full h-full">
+            <Tabs value={activeTab} className="w-full h-full">
+                <TabsHeader className="bg-gray-100 p-1 mb-2">
                     {tabs.map(({label, value, icon}) => (
                         <Tab
                             key={value}

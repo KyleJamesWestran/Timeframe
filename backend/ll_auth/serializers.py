@@ -2,11 +2,6 @@ from rest_framework import serializers
 from ll_auth.models import CustomUser, School
 from django.contrib.auth.models import Group
 
-class SchoolSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = School
-        fields = '__all__'
-
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
@@ -40,14 +35,3 @@ class RegisterSchoolSerializer(serializers.ModelSerializer):
         user.groups.add(admin_group)
 
         return school
-
-class TeacherSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CustomUser
-        fields = ['id', 'username', 'email', 'title', 'first_name', 'last_name', 'phone']
-
-    def create(self, validated_data):
-        teacher = CustomUser.objects.create(**validated_data)
-        teacher_group, _ = Group.objects.get_or_create(name="Teacher")
-        teacher.groups.add(teacher_group)
-        return teacher

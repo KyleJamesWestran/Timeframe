@@ -49,7 +49,7 @@ const Layout = ({ children }) => {
 
                     {/* User Icon */}
                     <div className="flex items-center space-x-2">
-                        <FaSearch size={20} className="text-primary hover:text-secondary cursor-pointer mx-5" />
+                        {/* <FaSearch size={20} className="text-primary hover:text-secondary cursor-pointer mx-5" /> */}
                         <FaUser size={20} className="text-primary hover:text-secondary cursor-pointer" />
                         {/* {userInfo && <span className="text-gray-800">{userInfo.username}</span>} */}
                         <FaSignOutAlt 

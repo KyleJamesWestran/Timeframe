@@ -30,8 +30,8 @@ class School(models.Model):
 
 class CustomUser(AbstractUser):
     title = models.CharField(max_length=10, choices=TITLE_CHOICES, null=True, blank=True)
-    phone = models.CharField(max_length=80, unique=True, null=True)
-    picture = models.TextField(null=True, blank=True)  # Store image as Base64 Hex string
+    phone = models.CharField(max_length=80, null=True, blank=True)
+    picture = models.TextField(null=True, blank=True)
     school = models.ForeignKey('School', on_delete=models.CASCADE, null=True, related_name="users")
 
     def __str__(self):
