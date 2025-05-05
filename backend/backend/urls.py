@@ -6,6 +6,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('token/', TokenObtainPairView.as_view(), name='get_token'),
     path('token/refresh/', TokenRefreshView.as_view(), name='refresh'),
-    path('ll_auth/', include('ll_auth.urls')), 
-    path('ll_admin/', include('ll_admin.urls')), 
+    path('tf_auth/', include('tf_auth.urls')), 
+    path('tf_admin/', include('tf_admin.urls')), 
 ]

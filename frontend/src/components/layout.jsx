@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FaLock, FaSearch, FaSignOutAlt, FaUser } from "react-icons/fa";
-import { getUserInfo, logout } from "../controllers/auth_controller";
+import { userInfo, logout } from "../controllers/auth_controller";
 
 // Create Context
 const UserContext = createContext();
@@ -16,7 +16,7 @@ const Layout = ({ children }) => {
     useEffect(() => {
         const fetchUserInfo = async () => {
             try {
-                const data = await getUserInfo();
+                const data = await userInfo();
                 setUserInfo(data);
             } catch (err) {
                 setError(err.message);
@@ -36,15 +36,14 @@ const Layout = ({ children }) => {
                 {/* Navigation Bar */}
                 <nav className="flex items-center justify-between py-5 border-b-2 border-gray-200 mx-10">
                     {/* Logo */}
-                    <p className="fancy-font text-primary text-3xl">Lesson Linker</p>
+                    <p className="fancy-font text-primary text-3xl">Timeframe</p>
 
                     {/* Navigation Links */}
                     <ul className="flex space-x-6">
                         <li><Link to="/dashboard" className="text-accent font-medium hover:text-compliment">Dashboard</Link></li>
-                        <li><Link to="/settings" className="text-accent font-medium hover:text-compliment">Settings</Link></li>
                         <li><Link to="/timetable" className="text-accent font-medium hover:text-compliment">Timetable</Link></li>
                         <li><Link to="/classes" className="text-accent font-medium hover:text-compliment">Classes</Link></li>
-                        <li><Link to="/calendar" className="text-accent font-medium hover:text-compliment">Calendar</Link></li>
+                        <li><Link to="/settings" className="text-accent font-medium hover:text-compliment">Settings</Link></li>
                     </ul>
 
                     {/* User Icon */}

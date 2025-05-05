@@ -28,8 +28,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
-    'll_auth',
-    'll_admin',
+    'tf_auth',
+    'tf_admin',
 ]
 
 MIDDLEWARE = [
@@ -116,7 +116,7 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = 'll_auth.CustomUser'
+AUTH_USER_MODEL = 'tf_auth.CustomUser'
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5000",

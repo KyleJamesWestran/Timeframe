@@ -18,10 +18,10 @@ function Landing() {
             className="flex flex-col items-center justify-center h-screen px-6">
             <header className="text-center mb-12">
                 <p className="fancy-font text-primary text-7xl">
-                    Lesson Linker
+                    Timeframe
                 </p>
                 <p className="text-lg text-secondary mt-3 max-w-lg mx-auto">
-                    Linking learners and educators with seamless connectivity.
+                    Your School, In Sync.
                 </p>
             </header>
 
@@ -40,8 +40,7 @@ function Landing() {
             </div>
 
             <footer className="absolute text-secondary bottom-6 text-sm">
-                &copy; {new Date().getFullYear()}
-                Lesson Linker. All rights reserved.
+                &copy; {new Date().getFullYear()} Timeframe. All rights reserved.
             </footer>
         </div>
     );

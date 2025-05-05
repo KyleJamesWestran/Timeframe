@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import Landing from "./pages/landing";
 import Register from "./pages/auth/register";
 import AdminDashboard from "./pages/dashboard";
-import SettingsPage from "./pages/admin/settings/settings";
+import SettingsPage from "./pages/settings/index";
 import Login from "./pages/auth/login";
 import PrivateRoute from "./components/privateRoute";
 import Layout from "./components/layout";
@@ -36,25 +36,9 @@ function App() {
 
                     {/* Private Routes */}
                     <Route element={<PrivateRoute />}>
-                        {/* Wrap only AdminDashboard in Layout */}
-                        <Route
-                            path="/dashboard"
-                            element={
-                                <Layout>
-                                    <AdminDashboard />
-                                </Layout>
-                            }
-                        />
-                        <Route
-                            path="/settings"
-                            element={
-                                <Layout>
-                                    <SettingsPage />
-                                </Layout>
-                            }
-                        />
+                        <Route path="/dashboard" element={<Layout><AdminDashboard /></Layout>}/>
+                        <Route path="/settings" element={<Layout><SettingsPage /></Layout>}/>
                     </Route>
-                    
                 </Routes>
             </Router>
         </div>

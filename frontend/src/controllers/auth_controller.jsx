@@ -25,7 +25,7 @@ export const logout = () => {
 
 export const registerSchool = async (userData) => {
     try {
-        const response = await axios.post(`${API_URL}ll_auth/register_school/`, userData);
+        const response = await axios.post(`${API_URL}tf_auth/register_school/`, userData);
 
         // Store tokens if registration is successful
         localStorage.setItem('access_token', response.data.access);
@@ -38,10 +38,10 @@ export const registerSchool = async (userData) => {
     }
 };
 
-export const getUserInfo = async () => {
+export const userInfo = async () => {
     try {
         const accessToken = localStorage.getItem("access_token");
-        const response = await axios.get(`${API_URL}ll_auth/get_user_info/`, {
+        const response = await axios.get(`${API_URL}tf_auth/user_info/`, {
             headers: { Authorization: `Bearer ${accessToken}` }
         });
         return response.data;
@@ -58,23 +58,19 @@ export const isAuthenticated = async () => {
     let token = getAccessToken();
     if (!token) {
         logout();
-        window.location.href = "/login"; // Redirect to login
         return false;
     }
 
     try {
         let decoded = jwtDecode(token);
-        console.log(new Date(decoded.exp * 1000))
-
         if (decoded.exp * 1000 > Date.now()) {
             return true; // Token is still valid
         }
 
-        // If access token is expired, try refreshing
+        // Token expired → try refreshing
         token = await refreshToken();
         if (!token) {
             logout();
-            window.location.href = "/login"; // Redirect if refresh fails
             return false;
         }
 
@@ -83,10 +79,10 @@ export const isAuthenticated = async () => {
     } catch (error) {
         console.error("Authentication check failed:", error);
         logout();
-        window.location.href = "/login"; // Redirect to login
         return false;
     }
 };
+
 
 export const refreshToken = async () => {
     try {
