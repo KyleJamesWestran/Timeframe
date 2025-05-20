@@ -1,12 +1,12 @@
-from rest_framework import generics, permissions, viewsets
-from rest_framework.response import Response
-from rest_framework import status
-from tf_admin.models import Subject, Class
+from rest_framework import permissions, viewsets
+from tf_admin.models import Subject
 from tf_auth.models import CustomUser
-from .serializers import TeacherSerializer, SubjectSerializer, ClassSerializer
-from rest_framework_simplejwt.tokens import RefreshToken
+from .serializers import TeacherSerializer,  StudentSerializer, SubjectSerializer
 from django.contrib.auth.models import Group
+from rest_framework.permissions import BasePermission
+from rest_framework.decorators import action
 
+# Views
 class TeacherViewSet(viewsets.ModelViewSet):
     serializer_class = TeacherSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -16,29 +16,35 @@ class TeacherViewSet(viewsets.ModelViewSet):
 
         teacher_group = Group.objects.get(name="Teacher")
         return CustomUser.objects.filter(groups=teacher_group, school_id=user.school_id)
-
-class ClassViewSet(viewsets.ModelViewSet):
-    """ViewSet for managing classes within the authenticated user's school."""
-    serializer_class = ClassSerializer
+    
+    def perform_create(self, serializer):
+        """Ensure the created teacher is linked to the user's school and added to the Teacher group."""
+        user = serializer.save(school_id=self.request.user.school_id)
+        teacher_group = Group.objects.get(name="Teacher")
+        user.groups.add(teacher_group)
+    
+class StudentViewSet(viewsets.ModelViewSet):
+    serializer_class = StudentSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        """Return classes belonging to the authenticated user's school."""
-        return Class.objects.filter(school_id=self.request.user.school_id)
+        user = self.request.user
+
+        student_group = Group.objects.get(name="Student")
+        return CustomUser.objects.filter(groups=student_group, school_id=user.school_id)
 
     def perform_create(self, serializer):
-        """Ensure the created class is linked to the authenticated user's school."""
-        serializer.save(school_id=self.request.user.school_id)
+        """Ensure the created subject is linked to the authenticated user's school."""
+        user = serializer.save(school_id=self.request.user.school_id)
+        teacher_group = Group.objects.get(name="Student")
+        user.groups.add(teacher_group)
 
 class SubjectViewSet(viewsets.ModelViewSet):
-    """ViewSet for managing subjects within the authenticated user's school."""
     serializer_class = SubjectSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        """Return subjects belonging to the authenticated user's school."""
         return Subject.objects.filter(school_id=self.request.user.school_id)
 
     def perform_create(self, serializer):
-        """Ensure the created subject is linked to the authenticated user's school."""
         serializer.save(school_id=self.request.user.school_id)

@@ -19,19 +19,28 @@ import {
     FormControl,
     InputLabel,
     Select,
-    MenuItem
+    MenuItem,
+    Autocomplete
 } from "@mui/material";
 import {Edit, Delete, Add} from "@mui/icons-material";
+
 import {
-    readTeachers, updateTeacher, createTeacher, deleteTeacher, readUserTitles // <-- Make sure this is imported
+    readTeachers,
+    updateTeacher,
+    createTeacher,
+    deleteTeacher,
+    readTitles,
+    readSubjects
 } from "../../../controllers/settings_controller";
-import { ImageToBase64, base64ToImage } from "../../../components/helpers";
+import {imageToBase64, base64ToImage} from "../../../components/helpers";
 
 const TeachersTab = () => {
     const [rows,
         setRows] = useState([]);
     const [titleOptions,
         setTitleOptions] = useState([]);
+    const [subjectOptions,
+        setSubjectOptions] = useState([]);
     const [open,
         setOpen] = useState(false);
     const [editMode,
@@ -45,25 +54,26 @@ const TeachersTab = () => {
         last_name: "",
         email: "",
         phone: "",
-        picture: null
+        picture: null,
+        subjects: [], // Array of subject codes
     });
 
     useEffect(() => {
         fetchTeachers();
         fetchTitleOptions();
+        fetchSubjectOptions();
     }, []);
 
-    const fetchTeachers = async () => {
+    const fetchTeachers = async() => {
         try {
             const data = await readTeachers();
-    
             const processed = data.map((teacher) => ({
                 ...teacher,
                 picture: teacher.picture
-                    ? base64ToImage(teacher.picture) // <-- Convert to data URL
-                    : null
+                    ? base64ToImage(teacher.picture)
+                    : null,
+                subjects: teacher.subjects || []
             }));
-    
             setRows(processed);
         } catch (error) {
             console.error("Error fetching teachers:", error);
@@ -72,10 +82,19 @@ const TeachersTab = () => {
 
     const fetchTitleOptions = async() => {
         try {
-            const data = await readUserTitles();
+            const data = await readTitles();
             setTitleOptions(data);
         } catch (error) {
-            console.error("Error fetching title options:", error);
+            console.error("Error fetching titles:", error);
+        }
+    };
+
+    const fetchSubjectOptions = async() => {
+        try {
+            const data = await readSubjects();
+            setSubjectOptions(data);
+        } catch (error) {
+            console.error("Error fetching subjects:", error);
         }
     };
 
@@ -84,7 +103,7 @@ const TeachersTab = () => {
             setEditMode(true);
             setForm({
                 ...teacher,
-                picture: null
+                picture: null, // Clear picture to upload new
             });
         } else {
             setEditMode(false);
@@ -96,7 +115,8 @@ const TeachersTab = () => {
                 last_name: "",
                 email: "",
                 phone: "",
-                picture: null
+                picture: null,
+                subjects: []
             });
         }
         setOpen(true);
@@ -104,32 +124,47 @@ const TeachersTab = () => {
 
     const handleClose = () => setOpen(false);
 
-    const handleChange = async (e) => {
-        const { name, value, files } = e.target;
-    
+    const handleChange = async(e) => {
+        const {name, value, files} = e.target;
+
         if (name === "picture" && files && files[0]) {
-            const base64 = await ImageToBase64(files[0]);
-            setForm({
-                ...form,
+            const base64 = await imageToBase64(files[0]);
+            setForm((prev) => ({
+                ...prev,
                 picture: base64
-            });
+            }));
         } else {
-            setForm({
-                ...form,
+            setForm((prev) => ({
+                ...prev,
                 [name]: value
-            });
+            }));
         }
     };
 
-    const handleSave = async () => {
+    // For Autocomplete, we need subject objects selected, but form stores codes.
+    // So, map codes to subject objects for the value prop
+    const selectedSubjectsObjects = subjectOptions.filter((subj) => form.subjects.includes(subj.code));
+
+    const handleSubjectsChange = (event, newValue) => {
+        // newValue is array of subject objects, update form.subjects to their codes
+        const codes = newValue.map((item) => item.code);
+        setForm((prev) => ({
+            ...prev,
+            subjects: codes
+        }));
+    };
+
+    const handleSave = async() => {
         try {
             if (!editMode) {
-                const { id, ...teacherData } = form;
-                await createTeacher(teacherData); // now just plain JSON
+                const {
+                    id,
+                    ...teacherData
+                } = form;
+                await createTeacher(teacherData);
             } else {
                 await updateTeacher(form.id, form);
             }
-    
             await fetchTeachers();
             handleClose();
         } catch (error) {
@@ -155,7 +190,7 @@ const TeachersTab = () => {
                 <Button
                     variant="contained"
                     startIcon={< Add />}
-                    onClick={handleOpen}
+                    onClick={() => handleOpen(null)}
                     className="btn-primary">
                     New Teacher
                 </Button>
@@ -172,6 +207,7 @@ const TeachersTab = () => {
                             <TableCell>Last Name</TableCell>
                             <TableCell>Email</TableCell>
                             <TableCell>Phone</TableCell>
+                            <TableCell>Subjects</TableCell>
                             <TableCell align="right">Actions</TableCell>
                         </TableRow>
                     </TableHead>
@@ -192,6 +228,17 @@ const TeachersTab = () => {
                                 <TableCell>{row.last_name}</TableCell>
                                 <TableCell>{row.email}</TableCell>
                                 <TableCell>{row.phone}</TableCell>
+                                <TableCell>
+                                    {row.subjects
+                                        ?.map((id) => {
+                                            const subj = subjectOptions.find((s) => s.id === id);
+                                            return subj
+                                                ? subj.name
+                                                : "";
+                                        })
+                                            .filter(Boolean)
+                                            .join(", ") || "—"}
+                                </TableCell>
                                 <TableCell align="right">
                                     <IconButton color="primary" onClick={() => handleOpen(row)}>
                                         <Edit/>
@@ -206,7 +253,7 @@ const TeachersTab = () => {
                 </Table>
             </TableContainer>
 
-            <Dialog open={open} onClose={handleClose}>
+            <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
                 <DialogTitle>{editMode
                         ? "Edit Teacher"
                         : "Add Teacher"}</DialogTitle>
@@ -217,7 +264,7 @@ const TeachersTab = () => {
                         name={field}
                         label={field
                         .split("_")
-                        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
                         .join(" ")}
                         fullWidth
                         value={form[field]}
@@ -232,12 +279,28 @@ const TeachersTab = () => {
                             onChange={handleChange}
                             label="Title">
                             {titleOptions.map((option) => (
-                                <MenuItem key={option.value} value={option.value}>
+                                <MenuItem key={option.key} value={option.label}>
                                     {option.label}
                                 </MenuItem>
                             ))}
                         </Select>
                     </FormControl>
+
+                    <Autocomplete
+                        multiple
+                        options={subjectOptions}
+                        getOptionLabel={(option) => `${option.name}`}
+                        value={subjectOptions.filter((t) => form.subjects.includes(t.id))}
+                        onChange={(event, newValue) => {
+                        setForm({
+                            ...form,
+                            subjects: newValue.map((t) => t.id)
+                        });
+                    }}
+                        renderInput={(params) => (<TextField {...params} label="Subjects" margin="dense"/>)}
+                        sx={{
+                        mt: 2
+                    }}/>
 
                     <TextField
                         margin="dense"
@@ -250,10 +313,8 @@ const TeachersTab = () => {
                     }}/>
                 </DialogContent>
                 <DialogActions>
-                    <Button className="btn-primary" onClick={handleClose}>
-                        Cancel
-                    </Button>
-                    <Button className="btn-primary" variant="contained" onClick={handleSave}>
+                    <Button onClick={handleClose}>Cancel</Button>
+                    <Button variant="contained" onClick={handleSave}>
                         {editMode
                             ? "Update"
                             : "Create"}

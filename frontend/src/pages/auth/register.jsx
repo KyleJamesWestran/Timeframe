@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { registerSchool } from "../../controllers/auth_controller"; // Import the function
+import { createSchool } from "../../controllers/auth_controller"; // Import the function
 
 const Register = () => {
     const navigate = useNavigate();
@@ -37,7 +37,7 @@ const Register = () => {
         setError(null);
 
         try {
-            await registerSchool(formData, navigate, setMessage, setLoading);
+            await createSchool(formData, navigate, setMessage, setLoading);
             window.location.href = "/dashboard"; // Redirect after successful registration
         } catch (err) {
             setError(err.message);

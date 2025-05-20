@@ -1,7 +1,7 @@
 import {useUser} from "../components/layout"; // Import useUser from Layout
 
 const AdminDashboard = () => {
-    const {userInfo, error} = useUser(); // Get user info from Layout
+    const {readUser, error} = useUser(); // Get user info from Layout
 
     return (
         <div>

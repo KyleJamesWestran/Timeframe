@@ -23,30 +23,106 @@ export const logout = () => {
     localStorage.removeItem('refresh_token');
 };
 
-export const registerSchool = async (userData) => {
+export const createUser = async (userData) => {
     try {
-        const response = await axios.post(`${API_URL}tf_auth/register_school/`, userData);
-
-        // Store tokens if registration is successful
-        localStorage.setItem('access_token', response.data.access);
-        localStorage.setItem('refresh_token', response.data.refresh);
-
+        const accessToken = localStorage.getItem("access_token");
+        const response = await axios.post(`${API_URL}tf_auth/user/`, 
+            userData, // JSON data being sent
+            {
+                headers: { 
+                    Authorization: `Bearer ${accessToken}`,
+                    "Content-Type": "application/json"
+                }
+            }
+        );
         return response.data;
     } catch (error) {
-        console.error("Registration failed", error);
+        console.error("Failed to get user info", error);
         throw error;
     }
 };
 
-export const userInfo = async () => {
+export const readUser = async () => {
     try {
         const accessToken = localStorage.getItem("access_token");
-        const response = await axios.get(`${API_URL}tf_auth/user_info/`, {
+        const response = await axios.get(`${API_URL}tf_auth/user/`, {
             headers: { Authorization: `Bearer ${accessToken}` }
         });
+        return response.data[0];
+    } catch (error) {
+        console.error("Failed to get user info", error);
+        throw error;
+    }
+};
+
+export const updateUser = async (id, userData) => {
+    try {
+        const accessToken = localStorage.getItem("access_token");
+        const response = await axios.patch(
+            `${API_URL}tf_auth/user/${id}/`,
+            userData, // JSON data being sent
+            {
+                headers: { 
+                    Authorization: `Bearer ${accessToken}`,
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+        return response.data; // Return the update teacher data
+    } catch (error) {
+        console.error("Failed to update teacher", error);
+        throw error;
+    }
+};
+
+export const createSchool = async (schoolData) => {
+    try {
+        const accessToken = localStorage.getItem("access_token");
+        const response = await axios.post(`${API_URL}tf_auth/school/`, 
+            schoolData, // JSON data being sent
+            {
+                headers: { 
+                    Authorization: `Bearer ${accessToken}`,
+                    "Content-Type": "application/json"
+                }
+            }
+        );
         return response.data;
     } catch (error) {
         console.error("Failed to get user info", error);
+        throw error;
+    }
+};
+
+export const readSchool = async () => {
+    try {
+        const accessToken = localStorage.getItem("access_token");
+        const response = await axios.get(`${API_URL}tf_auth/school/`, {
+            headers: { Authorization: `Bearer ${accessToken}` }
+        });
+        return response.data[0];
+    } catch (error) {
+        console.error("Failed to get user info", error);
+        throw error;
+    }
+};
+
+export const updateSchool = async (id, schoolData) => {
+    try {
+        const accessToken = localStorage.getItem("access_token");
+        const response = await axios.patch(
+            `${API_URL}tf_auth/school/${id}/`,
+            schoolData, // JSON data being sent
+            {
+                headers: { 
+                    Authorization: `Bearer ${accessToken}`,
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+        return response.data; // Return the update teacher data
+    } catch (error) {
+        console.error("Failed to update teacher", error);
         throw error;
     }
 };
@@ -82,7 +158,6 @@ export const isAuthenticated = async () => {
         return false;
     }
 };
-
 
 export const refreshToken = async () => {
     try {

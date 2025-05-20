@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FaLock, FaSearch, FaSignOutAlt, FaUser } from "react-icons/fa";
-import { userInfo, logout } from "../controllers/auth_controller";
+import { readUser, logout } from "../controllers/auth_controller";
 
 // Create Context
 const UserContext = createContext();
@@ -10,13 +10,13 @@ const UserContext = createContext();
 export const useUser = () => useContext(UserContext);
 
 const Layout = ({ children }) => {
-    const [userInfo, setUserInfo] = useState(null);
+    const [readUser, setUserInfo] = useState(null);
     const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchUserInfo = async () => {
             try {
-                const data = await userInfo();
+                const data = await readUser();
                 setUserInfo(data);
             } catch (err) {
                 setError(err.message);
@@ -31,7 +31,7 @@ const Layout = ({ children }) => {
     };
 
     return (
-        <UserContext.Provider value={{ userInfo, error, handleLogout }}>
+        <UserContext.Provider value={{ readUser, error, handleLogout }}>
             <div className="w-full h-screen flex flex-col">
                 {/* Navigation Bar */}
                 <nav className="flex items-center justify-between py-5 border-b-2 border-gray-200 mx-10">
@@ -50,7 +50,7 @@ const Layout = ({ children }) => {
                     <div className="flex items-center space-x-2">
                         {/* <FaSearch size={20} className="text-primary hover:text-secondary cursor-pointer mx-5" /> */}
                         <FaUser size={20} className="text-primary hover:text-secondary cursor-pointer" />
-                        {/* {userInfo && <span className="text-gray-800">{userInfo.username}</span>} */}
+                        {/* {readUser && <span className="text-gray-800">{readUser.username}</span>} */}
                         <FaSignOutAlt 
                             size={20} 
                             className="text-primary hover:text-secondary cursor-pointer" 

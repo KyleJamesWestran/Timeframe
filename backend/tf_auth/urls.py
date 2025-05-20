@@ -1,12 +1,16 @@
 from django.contrib import admin
 from django.urls import path, include
-from tf_auth.views import RegisterSchoolView, CurrentUserView
+from tf_auth.views import UserViewSet, SchoolViewSet, GroupViewSet, TitlesViewSet, DaysViewSet
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
 
+router.register(r'user', UserViewSet, basename='user')
+router.register(r'school', SchoolViewSet, basename='school')
+router.register(r'groups', GroupViewSet, basename='groups')
+router.register(r'titles', TitlesViewSet, basename='titles')
+router.register(r'days', DaysViewSet, basename='days')
+
 urlpatterns = [
-    path('register_school/', RegisterSchoolView.as_view(), name='register_school'),
-    path('user_info/', CurrentUserView.as_view(), name='user_info'),
     path('', include(router.urls)),
 ]

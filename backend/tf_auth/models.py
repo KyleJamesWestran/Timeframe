@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from multiselectfield import MultiSelectField
 
 TITLE_CHOICES = [
     ('Mr', 'Mr'),
@@ -7,6 +8,16 @@ TITLE_CHOICES = [
     ('Ms', 'Ms'),
     ('Dr', 'Dr'),
     ('Prof', 'Prof'),
+]
+
+DAY_CHOICES = [
+    (0, 'Sunday'),
+    (1, 'Monday'),
+    (2, 'Tuesday'),
+    (3, 'Wednesday'),
+    (4, 'Thursday'),
+    (5, 'Friday'),
+    (6, 'Saturday'),
 ]
 
 class School(models.Model):
@@ -22,6 +33,8 @@ class School(models.Model):
     country = models.CharField(max_length=100, null=True, blank=True)
     postal_code = models.CharField(max_length=20, null=True, blank=True)
     active = models.BooleanField(default=True)
+    days = MultiSelectField(choices=DAY_CHOICES, null=True, blank=True)
+    lessons = models.IntegerField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -33,6 +46,9 @@ class CustomUser(AbstractUser):
     phone = models.CharField(max_length=80, null=True, blank=True)
     picture = models.TextField(null=True, blank=True)
     school = models.ForeignKey('School', on_delete=models.CASCADE, null=True, related_name="users")
+
+    # New field: teacher assigned to student (nullable because teachers won't have a teacher)
+    teacher = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='students',limit_choices_to={'groups__name': 'Teacher'})
 
     def __str__(self):
         return f"{self.username}"

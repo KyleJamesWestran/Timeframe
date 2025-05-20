@@ -7,7 +7,9 @@ import SettingsPage from "./pages/settings/index";
 import Login from "./pages/auth/login";
 import PrivateRoute from "./components/privateRoute";
 import Layout from "./components/layout";
+import { Toaster } from "react-hot-toast";
 import "./App.css";
+import TimetablePage from "./pages/timetable";
 
 function App() {
     const [isDarkMode, setIsDarkMode] = useState(false);
@@ -28,6 +30,7 @@ function App() {
 
     return (
         <div className={`App ${isDarkMode ? "dark" : ""}`}>
+            <Toaster position="bottom-center" reverseOrder={false} />
             <Router>
                 <Routes>
                     <Route path="/" element={<Landing />} />
@@ -38,6 +41,7 @@ function App() {
                     <Route element={<PrivateRoute />}>
                         <Route path="/dashboard" element={<Layout><AdminDashboard /></Layout>}/>
                         <Route path="/settings" element={<Layout><SettingsPage /></Layout>}/>
+                        <Route path="/timetable" element={<Layout><TimetablePage /></Layout>}/>
                     </Route>
                 </Routes>
             </Router>

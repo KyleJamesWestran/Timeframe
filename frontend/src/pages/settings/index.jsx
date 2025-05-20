@@ -20,7 +20,7 @@ import StudentsTab from "./partials/studentsTab";
 import SubjectsTab from "./partials/subjectsTab";
 
 const SettingsPage = () => {
-    const {userInfo, error} = useUser(); // Get user info from Layout
+    const {readUser, error} = useUser(); // Get user info from Layout
     const [activeTab,
         setActiveTab] = useState("user");
 

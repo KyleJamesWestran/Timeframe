@@ -1,50 +1,34 @@
 from rest_framework import serializers
 from tf_auth.models import CustomUser
-from tf_admin.models import Class, Subject
+from tf_admin.models import Subject
 from django.contrib.auth.models import Group
 
 class TeacherSerializer(serializers.ModelSerializer):
+    subjects = serializers.PrimaryKeyRelatedField(queryset=Subject.objects.all(), many=True)
+
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', 'title', 'first_name', 'last_name', 'email', 'phone', 'picture']
-
-    def create(self, validated_data):
-        request = self.context.get("request")
-        if not request or not request.user.is_authenticated:
-            raise serializers.ValidationError("User must be authenticated to create a teacher")
-
-        validated_data["school_id"] = request.user.school_id  
-        teacher = CustomUser.objects.create(**validated_data)
-
-        teacher_group, _ = Group.objects.get_or_create(name="Teacher")
-        teacher.groups.add(teacher_group)
-
-        return teacher
+        fields = ['id', 'username', 'title', 'first_name', 'last_name', 'email', 'phone', 'picture', 'subjects']
     
-class ClassSerializer(serializers.ModelSerializer):
+class StudentSerializer(serializers.ModelSerializer):
+    teacher = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.none())
+
     class Meta:
-        model = Class
-        fields = ['id', 'name', 'teacher']
+        model = CustomUser
+        fields = ['id', 'username', 'title', 'first_name', 'last_name', 'picture', 'teacher']
 
-    def create(self, validated_data):
-        request = self.context.get("request")
-        if not request or not request.user.is_authenticated:
-            raise serializers.ValidationError("User must be authenticated to create a class")
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        request = self.context.get('request', None)
 
-        validated_data["school_id"] = request.user.school_id  
+        if request and hasattr(request, 'user'):
+            self.fields['teacher'].queryset = CustomUser.objects.filter(
+                groups__name='Teacher',
+                school_id=request.user.school_id
+            )
 
-        return super().create(validated_data)
 
 class SubjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subject
-        fields = ['id', 'name']
-
-    def create(self, validated_data):
-        request = self.context.get("request")
-        if not request or not request.user.is_authenticated:
-            raise serializers.ValidationError("User must be authenticated to create a subject")
-
-        validated_data["school_id"] = request.user.school_id  
-
-        return super().create(validated_data)
+        fields = ['id', 'name', 'teachers']
