@@ -1,6 +1,6 @@
 import {useState, useEffect, useRef} from 'react';
 import {readUser, updateUser, readSchool} from '../../../controllers/auth_controller';
-import {readGroups} from '../../..'
+import {readGroups} from '../../../se'
 import {base64ToImage, imageToBase64} from '../../../components/helpers';
 import toast from 'react-hot-toast';
 
