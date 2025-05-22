@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+:root {
+    --glow-color: #ffffff;
+}
+
+body {
+    overflow-x: hidden;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+.fancy-font {
+    font-family: "Pattaya", serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.outlined-font {
+    font-family: "Tourney", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    font-variation-settings: "wdth" 100;
+}
+
+.filled-font {
+    font-family: "Tourney", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 900;
+    /* Max weight for filled look */
+    font-style: normal;
+    font-variation-settings: "wdth" 100;
+    -webkit-text-stroke: 0;
+    /* Ensure no outline is applied */
+}
+
+.main-font {
+    font-family: "Funnel Display", sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+}
+
+.typewriter-font {
+    font-family: "Courier Prime", monospace;
+    font-style: normal;
+    transform: scaleY(1.15);
+    display: inline-block;
+    position: relative;
+    top: -0.3px;
+}
+
+.thin-font {
+    font-family: "Alumni Sans Pinstripe", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
