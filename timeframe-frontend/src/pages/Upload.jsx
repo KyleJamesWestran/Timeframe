@@ -107,7 +107,7 @@ const UploadSection = () => {
         };
 
         try {
-            const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/teacher_schedule`, {
+            const res = await fetch(`https://timeframe-backend.onrender.com/teacher_schedule`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
