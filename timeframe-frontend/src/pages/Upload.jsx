@@ -107,7 +107,7 @@ const UploadSection = () => {
         };
 
         try {
-            const res = await fetch(`${process.env.TF_BACKEND_URL}/teacher_schedule`, {
+            const res = await fetch(`${import.meta.env.TF_BACKEND_URL}/teacher_schedule`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
