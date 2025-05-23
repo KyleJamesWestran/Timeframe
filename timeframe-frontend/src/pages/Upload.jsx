@@ -106,8 +106,10 @@ const UploadSection = () => {
             ...settings
         };
 
+        const toastId = toast.loading("Generating timetable...");
+
         try {
-            const res = await fetch('https://timeframe-backend.onrender.com/teacher_schedule', {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/teacher_schedule`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -116,21 +118,24 @@ const UploadSection = () => {
             });
 
             if (!res.ok) {
-                // Handle specific status codes
+                toast.dismiss(toastId);
+
                 if (res.status === 400) {
                     const errorData = await res.json();
                     toast.error(`${errorData.detail || "Bad Request"}`);
                 } else {
-                    toast.error(`Error ${res.status}: ${res.statusText}`);
+                    toast.error(`Error ${res.status}: ${res.detail}`);
                 }
                 return;
             }
 
             const result = await res.json();
             console.log("API Response:", result);
-            toast.success("Timetable Generated Successfully!");
+            toast.success("Timetable Generated Successfully!", {id: toastId});
+
         } catch (err) {
             console.error("Error sending to API:", err);
+            toast.dismiss(toastId);
             toast.error("Failed to send data. Please try again later.");
         }
     };
@@ -301,7 +306,7 @@ const UploadSection = () => {
                     <button
                         onClick={sendToAPI}
                         className={`flex items-center gap-2 px-6 py-3 rounded-lg text-white font-semibold transition-colors duration-300 ${fileData
-                        ? "!bg-rose-500 hover:!bg-rose-600" 
+                        ? "!bg-rose-500 hover:!bg-rose-600"
                         : "!bg-gray-300 !cursor-not-allowed"}`}
                         disabled={!fileData}>
                         <FaUpload/>

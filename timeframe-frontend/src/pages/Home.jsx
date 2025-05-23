@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState, useEffect } from "react";
 import * as XLSX from "xlsx";
 import SupportSection from "./Help";
 import FaqSection from "./FAQ";
@@ -6,7 +6,7 @@ import UploadSection from "./Upload";
 
 const HomePage = () => {
     useEffect(() => {
-        fetch('https://timeframe-backend.onrender.com/')
+        fetch(import.meta.env.VITE_BACKEND_URL)
             .then(res => console.log('Backend wake-up ping sent.'))
             .catch(err => console.error('Error waking backend:', err));
     }, []);
