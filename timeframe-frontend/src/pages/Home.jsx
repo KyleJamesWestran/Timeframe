@@ -5,7 +5,11 @@ import FaqSection from "./FAQ";
 import UploadSection from "./Upload";
 
 const HomePage = () => {
-
+    useEffect(() => {
+        fetch('https://timeframe-backend.onrender.com/')
+            .then(res => console.log('Backend wake-up ping sent.'))
+            .catch(err => console.error('Error waking backend:', err));
+    }, []);
     return (
         <div className="bg-white">
             <section className="h-screen flex px-10">
@@ -33,16 +37,16 @@ const HomePage = () => {
                             just a bit of input from you, we generate a fully optimized, clash-free
                             timetable fast, accurate, and effortless.
                             <span>
-                                <a href="#upload" className="!text-rose-600 text-lg !font-black !underline main-font mx-1">GET STARTED</a>
+                                <a
+                                    href="#upload"
+                                    className="!text-rose-600 text-lg !font-black !underline main-font mx-1">GET STARTED</a>
                             </span>
                         </p>
                     </div>
                 </div>
             </section>
 
-            <UploadSection/>
-
-            {/* <SupportSection/> */}
+            <UploadSection/> {/* <SupportSection/> */}
 
             {/* <FaqSection/> */}
         </div>
