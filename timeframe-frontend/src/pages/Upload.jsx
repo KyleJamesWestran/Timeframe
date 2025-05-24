@@ -67,6 +67,7 @@ const UploadSection = () => {
         setIsPopupOpen] = useState(false);
 
     const handleFileUpload = (e) => {
+        setApiResponse();
         const file = e.target.files[0];
         const reader = new FileReader();
 
@@ -90,9 +91,10 @@ const UploadSection = () => {
                     weekly_hours: parseInt(row.Hours),
                     class_name: row.Class
                 });
+
             });
 
-            setFileData(teacherMap); // Store parsed data separately
+            setFileData(teacherMap);
         };
 
         reader.readAsBinaryString(file);
@@ -137,6 +139,14 @@ const UploadSection = () => {
             const result = await res.json();
             setApiResponse(result); // Save API response for preview
             toast.success("Timetable Generated Successfully!", {id: toastId});
+
+            // Clear uploaded file data and reset input
+            setFileData(null);
+            const fileInput = document.getElementById("fileInput");
+            if (fileInput) {
+                fileInput.value = "";
+            }
+
         } catch (err) {
             console.error("Error sending to API:", err);
             toast.dismiss(toastId);
