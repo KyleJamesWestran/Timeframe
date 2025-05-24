@@ -40,8 +40,8 @@ const settingOptions = [
         tooltip: "Prevent a teacher from being scheduled for more than one class at the same time."
     }, {
         key: "enforce_one_subject_per_period",
-        label: "Only One Subject per Period",
-        tooltip: "Disallow multiple subjects from being scheduled in the same period."
+        label: "Prevent Class Double Booking",
+        tooltip: "Prevent a class from being scheduled for more than one lesson at a time"
     }
 ];
 

@@ -108,37 +108,35 @@ const TimetableTable = ({name, timetable, days, periods, type}) => (
                         <Text style={styles.tableCellText}>{period}</Text>
                     </View>
                     {days.map((day) => {
-                        const lesson = (timetable[day] || []).find((l) => l.period === period);
+                        const lessons = (timetable[day] || []).filter((l) => l.period === period);
+
                         return (
                             <View key={day} style={styles.tableCol}>
-                                {lesson
-                                    ? (type === "teacher"
-                                        ? (
-                                            <Text style={styles.tableCellText}>
-                                                <Text
-                                                    style={{
-                                                    fontWeight: "bold"
-                                                }}>{lesson.class}</Text>
-                                                {"\n"}
-                                                <Text>{lesson.subject}</Text>
-                                            </Text>
-                                        )
-                                        : (
-                                            <Text style={styles.tableCellText}>
-                                                <Text
-                                                    style={{
-                                                    fontWeight: "bold"
-                                                }}>{lesson.teacher}</Text>
-                                                {"\n"}
-                                                <Text>{lesson.subject}</Text>
-                                            </Text>
-                                        ))
-                                    : (
-                                        <Text style={styles.tableCellText}></Text>
+                            {lessons.length > 0 ? (
+                                lessons.map((lesson, index) => (
+                                <Text key={index} style={styles.tableCellText}>
+                                    {type === "teacher" ? (
+                                    <>
+                                        <Text style={{ fontWeight: "bold" }}>{lesson.class}</Text>
+                                        {"\n"}
+                                        <Text>{lesson.subject}</Text>
+                                    </>
+                                    ) : (
+                                    <>
+                                        <Text style={{ fontWeight: "bold" }}>{lesson.teacher}</Text>
+                                        {"\n"}
+                                        <Text>{lesson.subject}</Text>
+                                    </>
                                     )}
+                                    {index < lessons.length - 1 && "\n\n" /* spacing between multiple lessons */}
+                                </Text>
+                                ))
+                            ) : (
+                                <Text style={styles.tableCellText}></Text>
+                            )}
                             </View>
                         );
-                    })}
+                        })}
                 </View>
             ))}
         </View>
@@ -150,7 +148,7 @@ const TimetablePDF = ({data}) => {
         ?.days || [];
 
     // Estimate per-row height (in PDF points)
-    const rowHeight = 40;
+    const rowHeight = 80;
     const baseHeight = 100; // for title and top padding
 
     const periods = Array.from({
