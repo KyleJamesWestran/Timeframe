@@ -201,7 +201,7 @@ const UploadSection = () => {
                     <li>Only Excel files (.xlsx or .xls) are accepted.</li>
                     <li>Adjust the configuration to suit your preferences on the right before uploading.</li>
                     <li>Hit upload, and correct any errors that popup</li>
-                    <li>If no errors pop up, a preview button should appear. Press it to view your generated timetable.</li>
+                    <li>If no errors pop up, a preview button should appear. Press it to view your timetables.</li>
                     <li>You can reset the process by uploading a new file.</li>
                 </ul>
 
