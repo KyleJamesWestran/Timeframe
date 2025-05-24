@@ -33,7 +33,7 @@ const PreviewModal = ({isOpen, onClose, data}) => {
                         document={< TimetablePDF data = {
                         data
                     } />}
-                        fileName="all-timetables.pdf">
+                        fileName="Timeframe.pdf">
                         {({loading}) => (
                             <button
                                 className="px-6 py-2 !bg-rose-500 text-white rounded hover:!bg-rose-600 transition"

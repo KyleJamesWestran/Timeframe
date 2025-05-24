@@ -185,8 +185,9 @@ const UploadSection = () => {
                     Download the template Excel spreadsheet to see the required format for uploading
                     data.
                 </p>
-                <a // href="/path-to-template.xlsx"
-                    // download
+                <a
+                    href="/Timeframe_Example.xlsx"
+                    download
                     className="inline-flex items-center gap-2 px-4 py-2 mb-4 bg-rose-500 !text-white rounded-md hover:bg-rose-600 transition">
                     <FaFileExcel/>
                     Download
