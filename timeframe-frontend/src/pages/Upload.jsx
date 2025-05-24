@@ -68,16 +68,33 @@ const UploadSection = () => {
 
     const handleFileUpload = (e) => {
         setApiResponse();
-        const file = e.target.files[0];
+        const file = e.target.files?.[0] || e?.dataTransfer?.files?.[0];
+
+        if (!file) return;
+
+        const fileInput = document.getElementById('fileInput');
+        if (fileInput) fileInput.value = "";
+
+        if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
+            toast.error("Only Excel files (.xlsx or .xls) are allowed.");
+            return;
+        }
+
         const reader = new FileReader();
 
         reader.onload = (evt) => {
-            const data = evt.target.result;
-            const workbook = XLSX.read(data, {type: "binary"});
+            const data = new Uint8Array(evt.target.result);
+            const workbook = XLSX.read(data, {type: "array"});
             const sheet = workbook.Sheets[workbook.SheetNames[0]];
             const jsonData = XLSX
                 .utils
                 .sheet_to_json(sheet);
+
+            const validationError = validateFile(jsonData);
+            if (validationError) {
+                toast.error(validationError);
+                return;
+            }
 
             const teacherMap = {};
             jsonData.forEach((row) => {
@@ -91,14 +108,46 @@ const UploadSection = () => {
                     weekly_lessons: parseInt(row.Lessons),
                     class_name: row.Class
                 });
-
             });
 
             setFileData(teacherMap);
+            toast.success("File successfully uploaded.");
         };
 
-        reader.readAsBinaryString(file);
-        toast.success("File Sucessfully uploaded.")
+        reader.readAsArrayBuffer(file);
+    };
+
+    const validateFile = (jsonData) => {
+        if (jsonData.length === 0) {
+            return "The uploaded file is empty.";
+        }
+
+        const requiredColumns = ["Teacher", "Subject", "Lessons", "Class"];
+        const firstRow = jsonData[0];
+        const actualColumns = Object.keys(firstRow);
+        const missingColumns = requiredColumns.filter(col => !actualColumns.includes(col));
+
+        if (missingColumns.length > 0) {
+            return `Missing required column(s): ${missingColumns.join(", ")}`;
+        }
+
+        for (let i = 0; i < jsonData.length; i++) {
+            const row = jsonData[i];
+            const rowNum = i + 2; // +2 to account for header row and 0-index
+
+            for (const col of requiredColumns) {
+                if (row[col] === undefined || row[col] === null || row[col].toString().trim() === "") {
+                    return `Row ${rowNum}: "${col}" is empty.`;
+                }
+            }
+
+            // Validate Lessons is a number
+            if (isNaN(row.Lessons) || parseInt(row.Lessons) < 0) {
+                return `Row ${rowNum}: "Lessons" must be a non-negative number.`;
+            }
+        }
+
+        return null; // No errors
     };
 
     const sendToAPI = async() => {
@@ -202,7 +251,8 @@ const UploadSection = () => {
                     <li>Only Excel files (.xlsx or .xls) are accepted.</li>
                     <li>Adjust the configuration to suit your preferences on the right before uploading.</li>
                     <li>Hit upload, and correct any errors that popup</li>
-                    <li>If no errors pop up, a preview button should appear. Press it to view your timetables.</li>
+                    <li>If no errors pop up, a preview button should appear. Press it to view your
+                        timetables.</li>
                     <li>You can reset the process by uploading a new file.</li>
                 </ul>
 
@@ -263,12 +313,13 @@ const UploadSection = () => {
                         type="number"
                         min="1"
                         value={settings.periods_per_day}
-                        onChange={(e) => {setSettings({
+                        onChange={(e) => {
+                        setSettings({
                             ...settings,
                             periods_per_day: parseInt(e.target.value)
                         });
                         setApiResponse();
-                        }}
+                    }}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md text-black"/>
                 </div>
 
@@ -279,12 +330,13 @@ const UploadSection = () => {
                         type="number"
                         min="1"
                         value={settings.max_subjects_per_day}
-                        onChange={(e) => {setSettings({
+                        onChange={(e) => {
+                        setSettings({
                             ...settings,
                             max_subjects_per_day: parseInt(e.target.value)
                         });
                         setApiResponse();
-                        }}
+                    }}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md text-black"/>
                 </div>
 
@@ -303,11 +355,12 @@ const UploadSection = () => {
                                 <input
                                     type="checkbox"
                                     checked={settings[key]}
-                                    onChange={() => {setSettings((prev) => ({
-                                    ...prev,
-                                    [key]: !prev[key]
-                                }));
-                                setApiResponse();
+                                    onChange={() => {
+                                    setSettings((prev) => ({
+                                        ...prev,
+                                        [key]: !prev[key]
+                                    }));
+                                    setApiResponse();
                                 }}
                                     className="sr-only"/>
                                 <div

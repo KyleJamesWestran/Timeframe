@@ -17,22 +17,6 @@ app.add_middleware(
 
 all_days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 
-def get_days(days_input: Union[int, List[int]]) -> List[str]:
-    if isinstance(days_input, int):
-        if not (1 <= days_input <= len(all_days)):
-            raise HTTPException(status_code=400, detail=f"days_per_week integer must be between 1 and {len(all_days)}")
-        # Return first N days starting from Sunday
-        return all_days[:days_input]
-    elif isinstance(days_input, list):
-        # Validate indexes
-        for d in days_input:
-            if not isinstance(d, int) or not (0 <= d < len(all_days)):
-                raise HTTPException(status_code=400, detail=f"Invalid day index: {d}")
-        # Return days in order given by user
-        return [all_days[d] for d in days_input]
-    else:
-        raise HTTPException(status_code=400, detail="days_per_week must be int or list of int")
-
 class Assignments(BaseModel):
     subject: str
     weekly_lessons: int
@@ -50,6 +34,22 @@ class ScheduleRequest(BaseModel):
     max_subjects_per_day: int = 1
     enforce_teacher_no_double_booking: bool = True
     enforce_one_subject_per_period: bool = True
+
+def get_days(days_input: Union[int, List[int]]) -> List[str]:
+    if isinstance(days_input, int):
+        if not (1 <= days_input <= len(all_days)):
+            raise HTTPException(status_code=400, detail=f"days_per_week integer must be between 1 and {len(all_days)}")
+        # Return first N days starting from Sunday
+        return all_days[:days_input]
+    elif isinstance(days_input, list):
+        # Validate indexes
+        for d in days_input:
+            if not isinstance(d, int) or not (0 <= d < len(all_days)):
+                raise HTTPException(status_code=400, detail=f"Invalid day index: {d}")
+        # Return days in order given by user
+        return [all_days[d] for d in days_input]
+    else:
+        raise HTTPException(status_code=400, detail="days_per_week must be int or list of int")
 
 @app.get("/")
 def read_root():
