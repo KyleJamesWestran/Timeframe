@@ -20,8 +20,8 @@ def generate_timetable_excel(filename="junior_school_timetable.xlsx"):
         "Ms. Clarke": {"Social Science": [4,5,6]},   # SS grades 4,5,6 (shared teacher)
     }
 
-    # Define subjects and weekly hours
-    subjects_hours = {
+    # Define subjects and weekly lessons
+    subjects_lessons = {
         "Maths": 5,
         "English": 5,
         "Second Language": 3,
@@ -47,7 +47,7 @@ def generate_timetable_excel(filename="junior_school_timetable.xlsx"):
         for class_num in range(num_classes):
             class_name = f"Grade {grade}{chr(ord('A') + class_num)}"
             # For each subject, find teacher(s) that teach it for this grade
-            for subject, hours in subjects_hours.items():
+            for subject, lessons in subjects_lessons.items():
                 # Find teachers who teach this subject for this grade
                 possible_teachers = []
                 for teacher, subs in teachers.items():
@@ -62,7 +62,7 @@ def generate_timetable_excel(filename="junior_school_timetable.xlsx"):
                     "Teacher": assigned_teacher,
                     "Class": class_name,
                     "Subject": subject,
-                    "Hours per Week": hours
+                    "lessons per Week": lessons
                 })
 
     # Create DataFrame and save to Excel

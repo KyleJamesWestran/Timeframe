@@ -35,7 +35,7 @@ def get_days(days_input: Union[int, List[int]]) -> List[str]:
 
 class Assignments(BaseModel):
     subject: str
-    weekly_hours: int
+    weekly_lessons: int
     class_name: str
 
 class TeacherInfo(BaseModel):
@@ -46,7 +46,7 @@ class ScheduleRequest(BaseModel):
     teachers: List[TeacherInfo]
     days_per_week: Union[int, List[int]] = 5
     periods_per_day: int = 6
-    enforce_required_hours: bool = True
+    enforce_required_lessons: bool = True
     max_subjects_per_day: int = 1
     enforce_teacher_no_double_booking: bool = True
     enforce_one_subject_per_period: bool = True
@@ -72,15 +72,18 @@ def schedule(data: ScheduleRequest):
                     key = (teacher, assignment.subject, assignment.class_name, day, period)
                     schedule[key] = model.NewBoolVar(f"{teacher}_{assignment.subject}_{assignment.class_name}_{day}_P{period}")
 
-    # Constraint 1: Assign required weekly hours
-    if data.enforce_required_hours:
-        for teacher_info in data.teachers:
-            teacher = teacher_info.teacher
-            for assignment in teacher_info.assignments:
-                model.Add(
-                    sum(schedule[(teacher, assignment.subject, assignment.class_name, day, period)] for day in days for period in range(periods_per_day))
-                    == assignment.weekly_hours
-                )
+    # Constraint 1: Assign required weekly lessons
+    for teacher_info in data.teachers:
+        teacher = teacher_info.teacher
+        for assignment in teacher_info.assignments:
+            lesson_sum = sum(
+                schedule[(teacher, assignment.subject, assignment.class_name, day, period)]
+                for day in days for period in range(periods_per_day)
+            )
+            if data.enforce_required_lessons:
+                model.Add(lesson_sum == assignment.weekly_lessons)
+            else:
+                model.Add(lesson_sum >= 1)
 
     # Constraint 2: Max subjects per day
     for teacher_info in data.teachers:

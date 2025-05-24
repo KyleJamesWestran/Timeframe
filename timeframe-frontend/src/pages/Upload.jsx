@@ -31,9 +31,9 @@ const dayNames = [
 
 const settingOptions = [
     {
-        key: "enforce_required_hours",
-        label: "Enforce Required Hours",
-        tooltip: "Ensure each teacher is assigned their full required teaching hours."
+        key: "enforce_required_lessons",
+        label: "Enforce Required Lessons",
+        tooltip: "Ensure All lessons are accounted for, based on the required lesson count."
     }, {
         key: "enforce_teacher_no_double_booking",
         label: "Prevent Teacher Double Booking",
@@ -55,7 +55,7 @@ const UploadSection = () => {
             1, 2, 3, 4, 5
         ], // Monday to Friday by default
         periods_per_day: 6,
-        enforce_required_hours: true,
+        enforce_required_lessons: true,
         max_subjects_per_day: 1,
         enforce_teacher_no_double_booking: true,
         enforce_one_subject_per_period: true
@@ -88,7 +88,7 @@ const UploadSection = () => {
 
                 teacherMap[teacher].push({
                     subject: row.Subject,
-                    weekly_hours: parseInt(row.Hours),
+                    weekly_lessons: parseInt(row.Lessons),
                     class_name: row.Class
                 });
 
@@ -155,6 +155,7 @@ const UploadSection = () => {
     };
 
     const toggleDay = (dayValue) => {
+        setApiResponse();
         setSettings((prev) => {
             const current = prev.days_per_week;
             if (current.includes(dayValue)) {
@@ -262,10 +263,12 @@ const UploadSection = () => {
                         type="number"
                         min="1"
                         value={settings.periods_per_day}
-                        onChange={(e) => setSettings({
-                        ...settings,
-                        periods_per_day: parseInt(e.target.value)
-                    })}
+                        onChange={(e) => {setSettings({
+                            ...settings,
+                            periods_per_day: parseInt(e.target.value)
+                        });
+                        setApiResponse();
+                        }}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md text-black"/>
                 </div>
 
@@ -276,10 +279,12 @@ const UploadSection = () => {
                         type="number"
                         min="1"
                         value={settings.max_subjects_per_day}
-                        onChange={(e) => setSettings({
-                        ...settings,
-                        max_subjects_per_day: parseInt(e.target.value)
-                    })}
+                        onChange={(e) => {setSettings({
+                            ...settings,
+                            max_subjects_per_day: parseInt(e.target.value)
+                        });
+                        setApiResponse();
+                        }}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md text-black"/>
                 </div>
 
@@ -298,10 +303,12 @@ const UploadSection = () => {
                                 <input
                                     type="checkbox"
                                     checked={settings[key]}
-                                    onChange={() => setSettings((prev) => ({
+                                    onChange={() => {setSettings((prev) => ({
                                     ...prev,
                                     [key]: !prev[key]
-                                }))}
+                                }));
+                                setApiResponse();
+                                }}
                                     className="sr-only"/>
                                 <div
                                     className={`w-11 h-6 flex items-center rounded-full p-1 duration-300 ease-in-out ${settings[key]
