@@ -1,7 +1,8 @@
 import React, {useState} from "react";
 import * as XLSX from "xlsx";
 import {toast} from 'react-hot-toast';
-import {FaUpload, FaQuestionCircle, FaFileExcel} from "react-icons/fa";
+import {FaQuestionCircle, FaFileExcel, FaFilePdf, FaFileUpload} from "react-icons/fa";
+import PreviewModal from './Preview.jsx';
 
 const dayNames = [
     {
@@ -39,8 +40,8 @@ const settingOptions = [
         tooltip: "Prevent a teacher from being scheduled for more than one class at the same time."
     }, {
         key: "enforce_one_subject_per_period",
-        label: "Only One Subject per Period",
-        tooltip: "Disallow multiple subjects from being scheduled in the same period."
+        label: "Prevent Class Double Booking",
+        tooltip: "Prevent a class from being scheduled for more than one lesson at a time"
     }
 ];
 
@@ -60,7 +61,13 @@ const UploadSection = () => {
         enforce_one_subject_per_period: true
     });
 
+    const [apiResponse,
+        setApiResponse] = useState(null);
+    const [isPopupOpen,
+        setIsPopupOpen] = useState(false);
+
     const handleFileUpload = (e) => {
+        setApiResponse();
         const file = e.target.files[0];
         const reader = new FileReader();
 
@@ -84,9 +91,10 @@ const UploadSection = () => {
                     weekly_hours: parseInt(row.Hours),
                     class_name: row.Class
                 });
+
             });
 
-            setFileData(teacherMap); // Store parsed data separately
+            setFileData(teacherMap);
         };
 
         reader.readAsBinaryString(file);
@@ -109,7 +117,7 @@ const UploadSection = () => {
         const toastId = toast.loading("Generating timetable...");
 
         try {
-            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/teacher_schedule`, {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/schedule`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -119,19 +127,25 @@ const UploadSection = () => {
 
             if (!res.ok) {
                 toast.dismiss(toastId);
-
                 if (res.status === 400) {
                     const errorData = await res.json();
                     toast.error(`${errorData.detail || "Bad Request"}`);
                 } else {
-                    toast.error(`Error ${res.status}: ${res.detail}`);
+                    toast.error(`Error ${res.status}: ${res.statusText}`);
                 }
                 return;
             }
 
             const result = await res.json();
-            console.log("API Response:", result);
+            setApiResponse(result); // Save API response for preview
             toast.success("Timetable Generated Successfully!", {id: toastId});
+
+            // Clear uploaded file data and reset input
+            setFileData(null);
+            const fileInput = document.getElementById("fileInput");
+            if (fileInput) {
+                fileInput.value = "";
+            }
 
         } catch (err) {
             console.error("Error sending to API:", err);
@@ -171,8 +185,9 @@ const UploadSection = () => {
                     Download the template Excel spreadsheet to see the required format for uploading
                     data.
                 </p>
-                <a // href="/path-to-template.xlsx"
-                    // download
+                <a
+                    href="/Timeframe_Example.xlsx"
+                    download
                     className="inline-flex items-center gap-2 px-4 py-2 mb-4 bg-rose-500 !text-white rounded-md hover:bg-rose-600 transition">
                     <FaFileExcel/>
                     Download
@@ -181,7 +196,7 @@ const UploadSection = () => {
                 <p className="text-2xl text-black main-font">INSTRUCTION:</p>
 
                 <ul className="text-gray-500 main-font list-disc list-inside space-y-1 mb-4">
-                    <li>Fill in the teacher, subject, grade, and hours required per week.</li>
+                    <li>Fill in the teacher, subject, grade, and lessons required per week.</li>
                     <li>Ensure the format matches the template.</li>
                     <li>Only Excel files (.xlsx or .xls) are accepted.</li>
                     <li>Adjust the configuration to suit your preferences on the right before uploading.</li>
@@ -203,7 +218,7 @@ const UploadSection = () => {
                             }
                         });
                     }}>
-                    <FaUpload className="w-12 h-12 text-rose-500 mb-2"/>
+                    <FaFileUpload className="w-12 h-12 text-rose-500 mb-2"/>
                     <p className="text-lg text-gray-600">Click to upload or drag and drop</p>
                     <p className="text-sm text-gray-400 mt-1">.xlsx or .xls only</p>
                     <input
@@ -305,14 +320,29 @@ const UploadSection = () => {
                 <div className="flex justify-center">
                     <button
                         onClick={sendToAPI}
-                        className={`flex items-center gap-2 px-6 py-3 rounded-lg text-white font-semibold transition-colors duration-300 ${fileData
+                        className={`flex items-center gap-2 px-6 py-3 me-2 rounded-lg text-white font-semibold transition-colors duration-300 ${fileData
                         ? "!bg-rose-500 hover:!bg-rose-600"
                         : "!bg-gray-300 !cursor-not-allowed"}`}
                         disabled={!fileData}>
-                        <FaUpload/>
-                        GENERATE
+                        <FaFileUpload/>
+                        Generate
                     </button>
+                    {/* New Button: Show Preview, visible only after success */}
+                    {apiResponse && (
+                        <button
+                            onClick={() => setIsPopupOpen(true)}
+                            className="inline-flex items-center gap-2 px-4 py-3 !bg-rose-500 !text-white rounded-md hover:!bg-rose-600 transition">
+                            <FaFilePdf/>
+                            Preview
+                        </button>
+                    )}
                 </div>
+
+                {/* Popup modal */}
+                <PreviewModal
+                    isOpen={isPopupOpen}
+                    onClose={() => setIsPopupOpen(false)}
+                    data={apiResponse}/>
             </div>
         </section>
     )

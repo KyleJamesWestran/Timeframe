@@ -33,138 +33,16 @@ def get_days(days_input: Union[int, List[int]]) -> List[str]:
     else:
         raise HTTPException(status_code=400, detail="days_per_week must be int or list of int")
 
-# ---------------------------
-# Models for Class-based Scheduling
-# ---------------------------
-
-class ClassSubject(BaseModel):
-    subject: str
-    weekly_hours: int
-    teacher: str
-
-class ClassInfo(BaseModel):
-    class_name: str
-    subjects: List[ClassSubject]
-
-class ClassScheduleRequest(BaseModel):
-    classes: List[ClassInfo]
-    days_per_week: Union[int, List[int]] = 5
-    periods_per_day: int = 6
-    enforce_required_hours: bool = True
-    max_subjects_per_day: int = 1
-    enforce_one_subject_per_period: bool = True
-    enforce_teacher_no_double_booking: bool = True
-
-@app.post("/class_schedule")
-def class_schedule(data: ClassScheduleRequest):
-    model = cp_model.CpModel()
-    schedule = {}
-
-    days = get_days(data.days_per_week)
-    periods_per_day = data.periods_per_day
-
-    # Decision variables
-    for class_info in data.classes:
-        for subject in class_info.subjects:
-            for day in days:
-                for period in range(periods_per_day):
-                    key = (class_info.class_name, subject.subject, day, period)
-                    schedule[key] = model.NewBoolVar(f"{class_info.class_name}_{subject.subject}_{day}_P{period}")
-
-    # Constraint 1: Allocate required hours per subject per class
-    if data.enforce_required_hours:
-        for class_info in data.classes:
-            for subject in class_info.subjects:
-                model.Add(
-                    sum(schedule[(class_info.class_name, subject.subject, day, period)] for day in days for period in range(periods_per_day)) 
-                    == subject.weekly_hours
-                )
-
-    # Constraint 2: Max subjects per day per class
-    for class_info in data.classes:
-        for subject in class_info.subjects:
-            for day in days:
-                model.Add(
-                    sum(schedule[(class_info.class_name, subject.subject, day, period)] for period in range(periods_per_day)) <= data.max_subjects_per_day
-                )
-
-    # Constraint 3: One subject per class per period
-    if data.enforce_one_subject_per_period:
-        for class_info in data.classes:
-            for day in days:
-                for period in range(periods_per_day):
-                    model.Add(
-                        sum(schedule[(class_info.class_name, subject.subject, day, period)] for subject in class_info.subjects) <= 1
-                    )
-
-    # Constraint 4: No teacher double-booking
-    if data.enforce_teacher_no_double_booking:
-        teacher_assignments = {}
-        for class_info in data.classes:
-            for subject in class_info.subjects:
-                teacher_assignments.setdefault(subject.teacher, []).append(
-                    (class_info.class_name, subject.subject)
-                )
-
-        for teacher, assignments in teacher_assignments.items():
-            for day in days:
-                for period in range(periods_per_day):
-                    model.Add(
-                        sum(schedule[(class_name, subject, day, period)] for (class_name, subject) in assignments) <= 1
-                    )
-
-    solver = cp_model.CpSolver()
-    status = solver.Solve(model)
-
-    if status in [cp_model.FEASIBLE, cp_model.OPTIMAL]:
-        class_timetables = {}
-        for class_info in data.classes:
-            class_name = class_info.class_name
-            class_timetables[class_name] = {}
-            for day in days:
-                class_timetables[class_name][day] = []
-                for period in range(periods_per_day):
-                    for subject in class_info.subjects:
-                        if solver.Value(schedule[(class_name, subject.subject, day, period)]):
-                            class_timetables[class_name][day].append({
-                                "period": period + 1,
-                                "subject": subject.subject,
-                                "teacher": subject.teacher
-                            })
-
-        teacher_timetables = {}
-        for class_name, day_sched in class_timetables.items():
-            for day, periods in day_sched.items():
-                for period_info in periods:
-                    teacher = period_info["teacher"]
-                    teacher_timetables.setdefault(teacher, {}).setdefault(day, []).append({
-                        "period": period_info["period"],
-                        "subject": period_info["subject"],
-                        "class": class_name
-                    })
-
-        return {
-            "status": "success",
-            "class_timetables": class_timetables,
-            "teacher_timetables": teacher_timetables,
-        }
-    else:
-        raise HTTPException(status_code=400, detail="No feasible timetable found for class schedule")
-
-# ---------------------------
-# Models for Teacher-based Scheduling
-# ---------------------------
-
-class TeacherAssignment(BaseModel):
+class Assignments(BaseModel):
     subject: str
     weekly_hours: int
     class_name: str
 
 class TeacherInfo(BaseModel):
     teacher: str
-    assignments: List[TeacherAssignment]
+    assignments: List[Assignments]
 
-class TeacherScheduleRequest(BaseModel):
+class ScheduleRequest(BaseModel):
     teachers: List[TeacherInfo]
     days_per_week: Union[int, List[int]] = 5
     periods_per_day: int = 6
@@ -173,8 +51,12 @@ class TeacherScheduleRequest(BaseModel):
     enforce_teacher_no_double_booking: bool = True
     enforce_one_subject_per_period: bool = True
 
-@app.post("/teacher_schedule")
-def teacher_schedule(data: TeacherScheduleRequest):
+@app.get("/")
+def read_root():
+    return {"status": "API is running"}
+
+@app.post("/schedule")
+def schedule(data: ScheduleRequest):
     model = cp_model.CpModel()
     schedule = {}
 
@@ -267,6 +149,8 @@ def teacher_schedule(data: TeacherScheduleRequest):
 
         return {
             "status": "success",
+            "days": days,
+            "periods_per_day": periods_per_day,
             "teacher_timetables": teacher_timetables,
             "class_timetables": class_timetables,
         }

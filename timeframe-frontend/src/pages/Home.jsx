@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import * as XLSX from "xlsx";
 import SupportSection from "./Help";
 import FaqSection from "./FAQ";
-import UploadSection from "./Upload";
+import UploadSection from "./Upload.jsx";
 
 const HomePage = () => {
     useEffect(() => {
