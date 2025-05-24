@@ -148,7 +148,7 @@ const TimetablePDF = ({data}) => {
         ?.days || [];
 
     // Estimate per-row height (in PDF points)
-    const rowHeight = 80;
+    const rowHeight = 40;
     const baseHeight = 100; // for title and top padding
 
     const periods = Array.from({
